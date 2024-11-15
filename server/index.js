@@ -24,8 +24,7 @@ connectDB()
 
 // CORS setup
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
- // origin: 'http://localhost:3001', // Adjust to match your frontend URL
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3001', // Adjust as needed
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
   credentials: true,
@@ -42,7 +41,7 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  secure: false,
+  secure: true, // Use secure connection (if your service supports it, like ElasticEmail)
 });
 
 // POST route to send email and save contact data
@@ -54,28 +53,21 @@ app.post("/send-email", async (req, res) => {
 
   try {
     // Save the contact data to MongoDB
-    const saveData= await newContact.save();
-    console.log(saveData)
+    const saveData = await newContact.save();
+    console.log(saveData);
 
     // Send the email
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
+      to: process.env.EMAIL_USER,  // You can change the recipient if needed
       subject: `Contact Form Submission: ${subject}`,
       text: `Name: ${username}\nPhone: ${phoneNumber}\nEmail: ${email}\n\nMessage:\n${message}`,
     };
 
     await transporter.sendMail(mailOptions);
     res.status(200).json({ success: true, message: "Email sent and data saved successfully!" });
-  } 
-  catch (error) {
+  } catch (error) {
     console.error("Error:", error);
     res.status(500).json({ success: false, message: "Failed to send email or save data." });
   }
-});
-
-// Default port and app listen logic (already in connectDB .then block, can be removed)
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`⚙️ Server is running at port : ${PORT}`);
 });
