@@ -1,6 +1,6 @@
 import React from 'react';
 import Title from '../layouts/Title';
-import { projectOne, projectTwo, projectThree } from "../../assets/index";
+import { projectOne, projectTwo, projectThree,projectFour,projectFive,projectSix } from "../../assets/index";
 import ProjectsCard from './ProjectsCard';
 
 const Projects = () => {
@@ -17,7 +17,7 @@ const Projects = () => {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 xl:gap-14">
         <ProjectsCard
-          title="Social Media Clone"
+          title="Instagram Clone"
           des="Developed an Instagram-inspired mobile app using React Native and Firebase, featuring real-time chat, social feeds, and role-based authentication for secure access."
           src={projectOne}
         />
@@ -34,17 +34,17 @@ const Projects = () => {
         <ProjectsCard
           title="Hospital Management System"
           des="Designed a MongoDB schema to optimize data handling and implemented secure RESTful APIs with Node.js, focusing on data security and confidentiality of medical records."
-          src={projectThree}
+          src={projectFour}
         />
         <ProjectsCard
           title="Authentication & Payment Module"
           des="Built a secure, token-based authentication system with Razorpay payment integration, ensuring reliable transaction processing and user-friendly authentication."
-          src={projectOne}
+          src={projectFive }
         />
         <ProjectsCard
           title="Social Media Clone"
           des="Implemented core social media features in a mobile app, including secure access, real-time messaging, and responsive UI, enhancing user interactivity and engagement."
-          src={projectTwo}
+          src={projectSix}
         />
       </div>
     </section>

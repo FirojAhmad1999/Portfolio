@@ -1,6 +1,6 @@
-import React,{useState} from 'react'
-import Title from '../layouts/Title';
-import ContactLeft from './ContactLeft';
+import React, { useState } from "react";
+import Title from "../layouts/Title";
+import ContactLeft from "./ContactLeft";
 
 const Contact = () => {
   const [username, setUsername] = useState("");
@@ -11,76 +11,86 @@ const Contact = () => {
   const [errMsg, setErrMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
 
-  // ========== Email Validation start here ==============
   const emailValidation = () => {
     return String(email)
       .toLocaleLowerCase()
       .match(/^\w+([-]?\w+)*@\w+([-]?\w+)*(\.\w{2,3})+$/);
   };
-  // ========== Email Validation end here ================
 
+  const isOnlyLetters = (str) => /^[a-zA-Z\s]+$/.test(str); // Validates only letters and spaces
 
-  
-// ===========Connect the Frontend to the Backend============
-const handleSend = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await fetch("http://localhost:5000/send-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, phoneNumber, email, subject, message }),
-    });
-    const result = await response.json();
-
-    if (result.success) {
-      setSuccessMsg("Thank you! Your message has been sent successfully.");
-      setErrMsg("");
-    } else {
-      setErrMsg("Failed to send message. Please try again.");
+  const handlePhoneNumberChange = (e) => {
+    const value = e.target.value;
+    // Allow only digits, truncate if length exceeds 10
+    if (/^\d*$/.test(value) && value.length <= 10) {
+      setPhoneNumber(value);
     }
-  } catch (error) {
-    setErrMsg("Error: Unable to send message.");
-  }
+  };
 
-  setUsername("");
-  setPhoneNumber("");
-  setEmail("");
-  setSubject("");
-  setMessage("");
-};
+  const handleSend = async (e) => {
+    e.preventDefault();
 
+    // Validations
+    if (!username) {
+      setErrMsg("Username is required!");
+      return;
+    }
+    if (!isOnlyLetters(username)) {
+      setErrMsg("Username should contain only letters!");
+      return;
+    }
+    if (!phoneNumber) {
+      setErrMsg("Phone number is required!");
+      return;
+    }
+    if (phoneNumber.length !== 10) {
+      setErrMsg("Phone number must be exactly 10 digits!");
+      return;
+    }
+    if (!email) {
+      setErrMsg("Email is required!");
+      return;
+    }
+    if (!emailValidation()) {
+      setErrMsg("Please provide a valid email!");
+      return;
+    }
+    if (!subject) {
+      setErrMsg("Subject is required!");
+      return;
+    }
+    if (!message) {
+      setErrMsg("Message is required!");
+      return;
+    }
 
-  // const handleSend = (e) => {
-  //   e.preventDefault();
-  //   if (username === "") {
-  //     setErrMsg("Username is required!");
-  //   } else if (phoneNumber === "") {
-  //     setErrMsg("Phone number is required!");
-  //   } else if (email === "") {
-  //     setErrMsg("Please give your Email!");
-  //   } else if (!emailValidation(email)) {
-  //     setErrMsg("Give a valid Email!");
-  //   } else if (subject === "") {
-  //     setErrMsg("Plese give your Subject!");
-  //   } else if (message === "") {
-  //     setErrMsg("Message is required!");
-  //   } else {
-  //     setSuccessMsg(
-  //       `Thank you dear ${username}, Your Messages has been sent Successfully!`
-  //     );
-  //     setErrMsg("");
-  //     setUsername("");
-  //     setPhoneNumber("");
-  //     setEmail("");
-  //     setSubject("");
-  //     setMessage("");
-  //   }
-  // };
+    try {
+      const response = await fetch("http://localhost:5000/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, phoneNumber, email, subject, message }),
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        setSuccessMsg("Thank you! Your message has been sent successfully.");
+        setErrMsg("");
+      } else {
+        setErrMsg("Failed to send message. Please try again.");
+      }
+    } catch (error) {
+      setErrMsg("Error: Unable to send message.");
+    }
+
+    setUsername("");
+    setPhoneNumber("");
+    setEmail("");
+    setSubject("");
+    setMessage("");
+  };
+
   return (
-    <section
-      id="contact"
-      className="w-full py-20 border-b-[1px] border-b-black"
-    >
+    <section id="contact" className="w-full py-20 border-b-[1px] border-b-black">
       <div className="flex justify-center items-center text-center">
         <Title title="CONTACT" des="Contact With Me" />
       </div>
@@ -107,10 +117,8 @@ const handleSend = async (e) => {
                   <input
                     onChange={(e) => setUsername(e.target.value)}
                     value={username}
-                    className={`${
-                      errMsg === "Username is required!" &&
-                      "outline-designColor"
-                    } contactInput`}
+                    placeholder="Enter your name"
+                    className="contactInput"
                     type="text"
                   />
                 </div>
@@ -119,13 +127,12 @@ const handleSend = async (e) => {
                     Phone Number
                   </p>
                   <input
-                    onChange={(e) => setPhoneNumber(e.target.value)}
+                    onChange={handlePhoneNumberChange}
                     value={phoneNumber}
-                    className={`${
-                      errMsg === "Phone number is required!" &&
-                      "outline-designColor"
-                    } contactInput`}
+                    placeholder="Enter 10-digit phone number"
+                    className="contactInput"
                     type="text"
+                    maxLength={10}
                   />
                 </div>
               </div>
@@ -136,10 +143,8 @@ const handleSend = async (e) => {
                 <input
                   onChange={(e) => setEmail(e.target.value)}
                   value={email}
-                  className={`${
-                    errMsg === "Please give your Email!" &&
-                    "outline-designColor"
-                  } contactInput`}
+                  placeholder="Enter your email"
+                  className="contactInput"
                   type="email"
                 />
               </div>
@@ -150,10 +155,8 @@ const handleSend = async (e) => {
                 <input
                   onChange={(e) => setSubject(e.target.value)}
                   value={subject}
-                  className={`${
-                    errMsg === "Plese give your Subject!" &&
-                    "outline-designColor"
-                  } contactInput`}
+                  placeholder="Enter the subject"
+                  className="contactInput"
                   type="text"
                 />
               </div>
@@ -164,9 +167,8 @@ const handleSend = async (e) => {
                 <textarea
                   onChange={(e) => setMessage(e.target.value)}
                   value={message}
-                  className={`${
-                    errMsg === "Message is required!" && "outline-designColor"
-                  } contactTextArea`}
+                  placeholder="Write your message here"
+                  className="contactTextArea"
                   cols="30"
                   rows="8"
                 ></textarea>
@@ -179,22 +181,12 @@ const handleSend = async (e) => {
                   Send Message
                 </button>
               </div>
-              {errMsg && (
-                <p className="py-3 bg-gradient-to-r from-[#1e2024] to-[#23272b] shadow-shadowOne text-center text-orange-500 text-base tracking-wide animate-bounce">
-                  {errMsg}
-                </p>
-              )}
-              {successMsg && (
-                <p className="py-3 bg-gradient-to-r from-[#1e2024] to-[#23272b] shadow-shadowOne text-center text-green-500 text-base tracking-wide animate-bounce">
-                  {successMsg}
-                </p>
-              )}
             </form>
           </div>
         </div>
       </div>
     </section>
   );
-}
+};
 
-export default Contact
+export default Contact;
