@@ -2,36 +2,39 @@ import express from 'express';
 import nodemailer from 'nodemailer';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import ContactDetails from './models/userDetails.js';
-import connectDB from './db_Connection/index.js';
+import mongoose from 'mongoose'; // Assuming mongoose is required for MongoDB
+import ContactDetails from './models/userDetails.js'; // Ensure this file exists and is correctly set up
 
-// Load environment variables from .env file
+// Load environment variables
 dotenv.config();
 
 // Create Express app
 const app = express();
 
-// MongoDB connection
-connectDB()
-  .then(() => {
-    app.listen(process.env.PORT || 8000, () => {
-      console.log(`⚙️ Server is running at port : ${process.env.PORT}`);
-    });
-  })
-  .catch((err) => {
-    console.log("MongoDB connection failed !!!", err);
-  });
+// Middleware to parse JSON
+app.use(express.json());
 
 // CORS setup
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3001', // Adjust as needed
+  origin: process.env.CORS_ORIGIN || 'http://localhost:3001', // Update as per your frontend's URL
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
   credentials: true,
 }));
 
-// Body parser middleware
-app.use(express.json());
+// MongoDB connection
+const connectDB = async () => {
+  try {
+    await mongoose.connect(process.env.MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+    console.log('MongoDB connected successfully!');
+  } catch (err) {
+    console.error('MongoDB connection failed!', err.message);
+    throw err; // Throw the error so the app doesn't start without a DB connection
+  }
+};
 
 // Nodemailer setup
 const transporter = nodemailer.createTransport({
@@ -41,33 +44,59 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS,
   },
-  secure: true, // Use secure connection (if your service supports it, like ElasticEmail)
+  secure: false, // Use true if your SMTP service requires secure connections (e.g., port 465)
 });
 
 // POST route to send email and save contact data
-app.post("/send-email", async (req, res) => {
+app.post('/send-email', async (req, res) => {
   const { username, phoneNumber, email, subject, message } = req.body;
 
+  // Validate input
+  if (!username || !email || !message) {
+    return res.status(400).json({ success: false, message: 'Missing required fields.' });
+  }
+
   // Create a new contact document
-  const newContact = new ContactDetails({ username, phoneNumber, email, subject, message });
+  const newContact = new ContactDetails({
+    username,
+    phoneNumber,
+    email,
+    subject,
+    message,
+  });
 
   try {
-    // Save the contact data to MongoDB
+    // Save contact data to MongoDB
     const saveData = await newContact.save();
-    console.log(saveData);
+    console.log('Contact data saved:', saveData);
 
-    // Send the email
+    // Send email
     const mailOptions = {
       from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,  // You can change the recipient if needed
+      to: process.env.EMAIL_USER, // Change if you want to send to another recipient
       subject: `Contact Form Submission: ${subject}`,
       text: `Name: ${username}\nPhone: ${phoneNumber}\nEmail: ${email}\n\nMessage:\n${message}`,
     };
 
-    await transporter.sendMail(mailOptions);
-    res.status(200).json({ success: true, message: "Email sent and data saved successfully!" });
+    const mailResponse = await transporter.sendMail(mailOptions);
+    console.log('Mail sent:', mailResponse);
+
+    res.status(200).json({ success: true, message: 'Email sent and data saved successfully!' });
   } catch (error) {
-    console.error("Error:", error);
-    res.status(500).json({ success: false, message: "Failed to send email or save data." });
+    console.error('Error:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to send email or save data.', error: error.message });
   }
 });
+
+// Start the server only after DB connection
+connectDB()
+  .then(() => {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, '0.0.0.0', () => {
+      console.log(`⚙️ Server is running at port: ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error('Failed to start the server:', err.message);
+  });
+
