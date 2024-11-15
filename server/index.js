@@ -23,7 +23,7 @@ app.use((req, res, next) => {
 // CORS setup
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN || 'http://localhost:3001', // Update as per your frontend's URL
+    origin: process.env.CORS_ORIGIN || 'https://frontend-nmzp09frv-firojahmad123s-projects.vercel.app', // Update as per your frontend's URL
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
     credentials: true,
