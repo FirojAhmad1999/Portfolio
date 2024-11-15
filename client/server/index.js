@@ -24,7 +24,7 @@ connectDB()
 
 // CORS setup
 app.use(cors({
-  origin: process.env.CORS_ORIGIN || 'http://localhost:3001',
+  origin: process.env.CORS_ORIGIN || 'https://portfolio-client-neon.vercel.app' ,
  // origin: 'http://localhost:3001', // Adjust to match your frontend URL
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type'],
