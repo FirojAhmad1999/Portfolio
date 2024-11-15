@@ -65,7 +65,7 @@ const Contact = () => {
     }
 
     try {
-      const response = await fetch("https://portfolio-wine-three-13.vercel.app/send-email", {
+      const response = await fetch("https://backend-7ahcplxzd-firojahmad123s-projects.vercel.app", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, phoneNumber, email, subject, message }),
