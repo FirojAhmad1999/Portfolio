@@ -20,10 +20,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS setup
+// CORS setup (Fixed missing comma)
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN // Update as per your frontend's URL
+    origin: process.env.CORS_ORIGIN, // Ensure this is set correctly in your .env
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
     credentials: true,
