@@ -20,10 +20,10 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS setup (Fixed missing comma)
+// CORS setup
 app.use(
   cors({
-    origin: process.env.CORS_ORIGIN, // Ensure this is set correctly in your .env
+    origin: process.env.CORS_ORIGIN, // Update as per your frontend's URL
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
     credentials: true,
@@ -33,10 +33,7 @@ app.use(
 // MongoDB connection function
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
+    await mongoose.connect(process.env.MONGODB_URI); // No need for deprecated options anymore
     console.log('✅ MongoDB connected successfully!');
   } catch (err) {
     console.error('❌ MongoDB connection failed!', err.message);
