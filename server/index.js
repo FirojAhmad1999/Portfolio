@@ -23,7 +23,7 @@ app.use((req, res, next) => {
 // CORS setup
 app.use(
   cors({
-    origin:'*' // Update as per your frontend's URL
+    origin: process.env.CORS_ORIGIN // Update as per your frontend's URL
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type'],
     credentials: true,
